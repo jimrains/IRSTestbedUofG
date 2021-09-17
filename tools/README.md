@@ -9,7 +9,7 @@ This is useful for developing programs which externally control or rely on GNURa
 
 Usage:
 
-`insert_grc.py \<compiled flowgraph\> \<header file\> \<body file\>`
+`insert_grc.py <compiled flowgraph> <header file> <body file>`
 
 Example (files included in directory):
 
