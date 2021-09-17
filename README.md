@@ -6,6 +6,7 @@ Here you will find code and documentation to aid in deploying with the two avail
 
 ![IMG_0633](https://user-images.githubusercontent.com/81563914/133843303-0d16154f-d2ee-45f0-9907-5e675c72290c.JPG)
 
+![IMG_0636](https://user-images.githubusercontent.com/81563914/133843923-432ec405-aece-4582-aa53-fc9f804eff3b.JPG)
 
 ## Related Publications
 
