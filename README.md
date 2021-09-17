@@ -4,6 +4,9 @@ Repository for the University of Glasgow's intelligent reflecting surface (IRS) 
 
 Here you will find code and documentation to aid in deploying with the two available IRSs in CSI group.
 
+![IMG_0633](https://user-images.githubusercontent.com/81563914/133843303-0d16154f-d2ee-45f0-9907-5e675c72290c.JPG)
+
+
 ## Related Publications
 
 'Wireless on Walls: Revolutionizing the Future of Health Care', Jalil ur Rehman Kazim, Tie Jun Cui, Ahmed Zoha, Lianlin Li, Syed Aziz Shah, Akram Alomainy, Muhammad Ali Imran, Qammer H. Abbasi, IEEE Antennas and Propagation Magazine, 2020/11/24
