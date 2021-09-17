@@ -15,4 +15,4 @@ Here you will find code and documentation to aid in deploying with the two avail
 
 '2.75-Bit Reflecting Unit Cell Design for Reconfigurable Intelligent Surfaces', James Rains, Jalil ur Rehman Kazim, Lei Zhang, Anvar Tukmanov, Qammer Abbasi, Muhammad Imran, IEEE AP-S/URSI 2021
 
-'Reflecting Metasurface Unit Cell Designwith Multi-Bit Azimuthal Control', James Rains, Jalil ur Rehman Kazim, Lei Zhang, Anvar Tukmanov, Qammer Abbasi, Muhammad Imran, ICMAC 2021 (under review)
+'Reflecting Metasurface Unit Cell Design with Multi-Bit Azimuthal Control', James Rains, Jalil ur Rehman Kazim, Lei Zhang, Anvar Tukmanov, Qammer Abbasi, Muhammad Imran, ICMAC 2021 (under review)
