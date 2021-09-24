@@ -132,8 +132,6 @@ BEGIN
         END IF;
     END PROCESS;  
 
-
-
     PROCESS( S2, RW )
     BEGIN
         IF RW = '1' THEN

@@ -337,24 +337,29 @@ def main(top_block_cls=OPTchannelGainONEUSRP, options=None):
         AL = 1
         power_samples = [0]*AL
         count = 0
-        while 1:
-            for nn in range(0,576,3):
-                if (count%100 == 0) or count == 8:
-                    print(count)
-                    print(":: Current best power: ", 10*np.log10(max(POWERS)), " dB")
-                    print(''.join(str(int(e)) for e in y))
-                k = 0
-                while k < 8:
-                    count = count + 1
-                    y[nn:nn+3] = PERMS[k]
-                    sendConfig(y, s)
-                    while waitForAck(s) == 1:
-                        print("Socket fail")
-                    time.sleep(sleeptime)
-                    PWR = tb.blocks_probe_signal_x_0.level()
-                    POWERS[k] = PWR
-                    k = k + 1
-                y[nn:nn+3] = PERMS[POWERS.index(max(POWERS))]
+        try:
+            while 1:
+                for nn in range(0,576,3):
+                    if (count%100 == 0) or count == 8:
+                        print(count)
+                        print(":: Current best power: ", 10*np.log10(max(POWERS)), " dB")
+                        print(''.join(str(int(e)) for e in y))
+                    k = 0
+                    while k < 8:
+                        count = count + 1
+                        y[nn:nn+3] = PERMS[k]
+                        sendConfig(y, s)
+                        while waitForAck(s) == 1:
+                            print("Socket fail")
+                        time.sleep(sleeptime)
+                        PWR = tb.blocks_probe_signal_x_0.level()
+                        POWERS[k] = PWR
+                        k = k + 1
+                    y[nn:nn+3] = PERMS[POWERS.index(max(POWERS))]
+        except KeyboardInterrupt:
+            s.close()
+            print("Socket closed. Exiting.")
+            sys.exit()
 
     uiThread = Thread(target=mainLoop, args=())
     uiThread.start()
