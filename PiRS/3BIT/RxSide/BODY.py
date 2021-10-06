@@ -45,13 +45,40 @@ def sendConfig(config, sock):
         print('failed.')
         sys.exit()
 
+def write_config_data(frequency, start_power, end_power, config, filename):
+    datout = str(frequency) + " " + str(start_power) + " " + str(end_power)
+    datout = datout + " " + ''.join(str(int(e)) for e in config)
+    f = open(filename, "w")
+    f.write(datout + "\n")
+
+def generate_filename(frequency, function, position):
+    DT = datetime.datetime.now()
+    fn1 = str(DT.year) + str(DT.month) + str(DT.day)
+    fn2 = "_" + str(DT.hour) + str(DT.minute) + str(DT.second)
+    fn3 = "_" + function + "_" + position + "_"
+    fn4 = str(frequency) + ".dat"
+    return fn1+fn2+fn3+fn4
 
 def mainLoop():
     #RXpower = tb.analog_probe_avg_mag_sqrd_x_0.level()
     PERMS = [['0','0','0'],['0','0','1'],['0','1','0'],['0','1','1'],['1','0','0'],['1','0','1'],['1','1','0'],['1','1','1']]
     POWERS = [0,0,0,0,0,0,0,0]
-    PDB = [0,0,0,0,0,0,0,0]
+    #PDB = [0,0,0,0,0,0,0,0]
     time.sleep(3)
+
+
+    cur_freq = int(sys.argv[1])
+    position = sys.argv[2]
+    position = position.upper()
+    tb.set_freq(cur_freq*1000000)
+    rpcs = client.Server('http://192.168.4.3:8080')
+    rpcs.set_txfreq(cur_freq)
+    DT = datetime.datetime.now()
+    dir_name = str(DT.year) + str(DT.month) + str(DT.day) + "/"
+    try:
+        os.mkdir(dir_name)
+    except FileExistsError:
+        print(" :: Directory exists - skipping ")
 
     s = socketSetup()
     waitForAck(s)
@@ -68,7 +95,9 @@ def mainLoop():
     best_PWR = PWR
     print(":: Starting power 2: ", 10*np.log10(PWR), " dB")
 
-    PDB[7] = 10*np.log10(PWR)
+    start_power = PWR
+
+    #PDB[7] = 10*np.log10(PWR)
     #sleeptime = 0.015
     sleeptime = 0.005
     AL = 1
@@ -93,10 +122,15 @@ def mainLoop():
                 POWERS[k] = PWR
                 k = k + 1
             y[nn:nn+3] = PERMS[POWERS.index(max(POWERS))]
+
+    config_filename = dir_name + generate_filename(cur_freq, "OPT", position)
+    print(" :: Writing to: ", config_filename)
+    write_config_data(cur_freq, 10*np.log10(start_power), 10*np.log10(max(POWERS)), y, config_filename)
     #input('Any key to exit')
     # except KeyboardInterrupt:
     s.close()
     print("Socket closed. Exiting.")
+    os.system('play -nq -t alsa synth {} sine {}'.format(1, 400))
     input('Any key to stop')
 
 uiThread = Thread(target=mainLoop, args=())
