@@ -69,7 +69,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 1e6
+    value: 5e6
   states:
     bus_sink: false
     bus_source: false
@@ -77,22 +77,6 @@ blocks:
     coordinate: [184, 12]
     rotation: 0
     state: enabled
-- name: blocks_complex_to_mag_0
-  id: blocks_complex_to_mag
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [505, 203]
-    rotation: 0
-    state: disabled
 - name: blocks_complex_to_mag_squared_0
   id: blocks_complex_to_mag_squared
   parameters:
@@ -115,7 +99,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    length: int(samp_rate/10)
+    length: int(samp_rate/1000)
     max_iter: '4000'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -126,9 +110,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [532, 364]
+    coordinate: [580, 388]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_nlog10_ff_0
   id: blocks_nlog10_ff
   parameters:
@@ -144,7 +128,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [764, 274]
+    coordinate: [883, 342]
     rotation: 0
     state: enabled
 - name: blocks_probe_signal_x_0_0
@@ -240,7 +224,7 @@ blocks:
     bus_structure: null
     coordinate: [503, 68]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: qtgui_time_sink_x_0
   id: qtgui_time_sink_x
   parameters:
@@ -335,7 +319,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [910, 235]
+    coordinate: [1006, 258]
     rotation: 0
     state: enabled
 - name: uhd_usrp_source_0_0
@@ -483,7 +467,7 @@ blocks:
     dc_offs_enb9: '""'
     dev_addr: '""'
     dev_args: '""'
-    gain0: '50'
+    gain0: '15'
     gain1: '0'
     gain10: '0'
     gain11: '0'
@@ -711,15 +695,10 @@ blocks:
     state: enabled
 
 connections:
-- [blocks_complex_to_mag_0, '0', blocks_nlog10_ff_0, '0']
-- [blocks_complex_to_mag_0, '0', blocks_probe_signal_x_0_0, '0']
 - [blocks_complex_to_mag_squared_0, '0', blocks_moving_average_xx_0, '0']
-- [blocks_complex_to_mag_squared_0, '0', blocks_nlog10_ff_0, '0']
-- [blocks_complex_to_mag_squared_0, '0', blocks_probe_signal_x_0_0, '0']
 - [blocks_moving_average_xx_0, '0', blocks_nlog10_ff_0, '0']
 - [blocks_moving_average_xx_0, '0', blocks_probe_signal_x_0_0, '0']
 - [blocks_nlog10_ff_0, '0', qtgui_time_sink_x_0, '0']
-- [uhd_usrp_source_0_0, '0', blocks_complex_to_mag_0, '0']
 - [uhd_usrp_source_0_0, '0', blocks_complex_to_mag_squared_0, '0']
 - [uhd_usrp_source_0_0, '0', qtgui_freq_sink_x_0, '0']
 

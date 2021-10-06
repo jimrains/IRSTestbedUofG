@@ -57,7 +57,7 @@ def mainLoop():
         rpcs.set_txfreq(frequency)
         tb.set_freq(frequency*1000000)
         time.sleep(1)
-        print(rpcs.get_txfreq())
+        print(" :: Set: ", rpcs.get_txfreq())
         PWR = 0
         for i in range(1, avg_length + 1, 1):
             PWR = PWR + tb.blocks_probe_signal_x_0_0.level()
@@ -67,6 +67,7 @@ def mainLoop():
         print(" :: Relative power: ", 10*np.log10(PWR), " dB")
 
     print(" :: DONE ")
+    os.system('play -nq -t alsa synth {} sine {}'.format(1, 400))
     SF.close()
     tb.stop()
     sys.exit()
