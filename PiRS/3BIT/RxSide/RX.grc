@@ -53,10 +53,10 @@ blocks:
     min_len: '200'
     orient: Qt.Horizontal
     rangeType: float
-    start: 3.2e9
+    start: 3e9
     step: 50e6
-    stop: 4.2e9
-    value: 3.8e9
+    stop: 4.5e9
+    value: 3e9
     widget: counter_slider
   states:
     bus_sink: false
