@@ -1,0 +1,26 @@
+
+sweep_dir = '/home/rusty/github/IRSTestbedUofG/tools/measurements/band sweep/2021106/'
+opt_dir = '/home/rusty/github/IRSTestbedUofG/PiRS/3BIT/RxSide/2021106/'
+
+
+ref = load(strcat(sweep_dir,'2021106_19509_SWEEP_0A.dat'))
+nors = load(strcat(sweep_dir,'2021106_212323_SWEEP_1A.dat'))
+gip = load(strcat(sweep_dir,'2021106_204350_SWEEP_3800.dat'))
+relmags = X2021106_204350_SWEEP_3800(:,3)
+freq = X2021106_204350_SWEEP_3800(:,2)
+
+figure(1)
+clf
+plot(freq, nors(:,3))
+hold on
+plot(freq, ref(:,3))
+plot(freq, relmags)
+axis([
+
+legend(["No IRS", "IRS off", "IRS conf"])
+
+figure(3)
+clf
+plot(freq, relmags - nors(:,3), 'b')
+hold on
+plot(freq, relmags - ref(:,3), 'r--')
