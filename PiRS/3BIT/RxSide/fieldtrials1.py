@@ -356,7 +356,7 @@ def main(top_block_cls=fieldtrials1, options=None):
         AL = 1
         power_samples = [0]*AL
         count = 0
-        iterations = 5
+        iterations = 500
         for u in range(1, iterations):
             for nn in range(0,576,3):
                 if (count%100 == 0) or count == 8:
