@@ -110,7 +110,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [580, 388]
+    coordinate: [580, 341]
     rotation: 0
     state: enabled
 - name: blocks_nlog10_ff_0
@@ -128,7 +128,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [883, 342]
+    coordinate: [768, 467]
     rotation: 0
     state: enabled
 - name: blocks_probe_signal_x_0_0
@@ -142,7 +142,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [745, 191]
+    coordinate: [745, 243]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -319,7 +319,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1006, 258]
+    coordinate: [845, 300]
     rotation: 0
     state: enabled
 - name: uhd_usrp_source_0_0

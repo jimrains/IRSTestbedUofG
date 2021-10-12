@@ -1,12 +1,12 @@
-load phasedata3.dat
-load magdata3.dat
+load phasedata28.dat
+load magdata28.dat
 freqs = phasedata3(:,1)
 phases = phasedata3(:,2:end)
 
 
 
 posi_phases = phases + (phases<0)*360
-posi_phases(:,6) = 0 % Invalid due to FPGA error
+%posi_phases(:,6) = 0 % Invalid due to FPGA error
 
 sorted_phases = sort(posi_phases.').'
 

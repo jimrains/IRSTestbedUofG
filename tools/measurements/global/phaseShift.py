@@ -34,9 +34,7 @@ import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-from gnuradio import uhd
-import time
-from gnuradio.qtgui import Range, RangeWidget
+import limesdr
 from gnuradio import qtgui
 
 class phaseShift(gr.top_block, Qt.QWidget):
@@ -75,45 +73,13 @@ class phaseShift(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 2e6
-        self.freq = freq = 3.2e9
+        self.samp_rate = samp_rate = 400e3
+        self.freq = freq = 3e9
+        self.caldelay = caldelay = 0
 
         ##################################################
         # Blocks
         ##################################################
-        self._freq_range = Range(3e9, 4.5e9, 10e6, 3.2e9, 200)
-        self._freq_win = RangeWidget(self._freq_range, self.set_freq, 'freq', "counter_slider", float)
-        self.top_grid_layout.addWidget(self._freq_win)
-        self.uhd_usrp_source_0 = uhd.usrp_source(
-            ",".join(("", "")),
-            uhd.stream_args(
-                cpu_format="fc32",
-                args='',
-                channels=list(range(0,2)),
-            ),
-        )
-        self.uhd_usrp_source_0.set_center_freq(freq, 0)
-        self.uhd_usrp_source_0.set_gain(20, 0)
-        self.uhd_usrp_source_0.set_antenna('RX2', 0)
-        self.uhd_usrp_source_0.set_center_freq(freq, 1)
-        self.uhd_usrp_source_0.set_gain(20, 1)
-        self.uhd_usrp_source_0.set_antenna('RX2', 1)
-        self.uhd_usrp_source_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_source_0.set_time_unknown_pps(uhd.time_spec())
-        self.uhd_usrp_sink_0 = uhd.usrp_sink(
-            ",".join(("", "")),
-            uhd.stream_args(
-                cpu_format="fc32",
-                args='',
-                channels=list(range(0,1)),
-            ),
-            '',
-        )
-        self.uhd_usrp_sink_0.set_center_freq(freq, 0)
-        self.uhd_usrp_sink_0.set_gain(30, 0)
-        self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
-        self.uhd_usrp_sink_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_sink_0.set_time_unknown_pps(uhd.time_spec())
         self.qtgui_time_sink_x_1_0 = qtgui.time_sink_f(
             1024, #size
             samp_rate, #samp_rate
@@ -209,7 +175,7 @@ class phaseShift(gr.top_block, Qt.QWidget):
         self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
-            1024, #size
+            1024*10, #size
             samp_rate/10, #samp_rate
             "", #name
             1 #number of inputs
@@ -255,109 +221,72 @@ class phaseShift(gr.top_block, Qt.QWidget):
 
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.pyqwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_win)
-        self.qtgui_freq_sink_x_0_0 = qtgui.freq_sink_c(
-            1024, #size
-            firdes.WIN_BLACKMAN_hARRIS, #wintype
-            0, #fc
-            samp_rate, #bw
-            "", #name
-            1
-        )
-        self.qtgui_freq_sink_x_0_0.set_update_time(0.10)
-        self.qtgui_freq_sink_x_0_0.set_y_axis(-140, 10)
-        self.qtgui_freq_sink_x_0_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0_0.enable_autoscale(False)
-        self.qtgui_freq_sink_x_0_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0_0.set_fft_average(1.0)
-        self.qtgui_freq_sink_x_0_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0_0.enable_control_panel(False)
+        self.low_pass_filter_1 = filter.fir_filter_ccf(
+            1,
+            firdes.low_pass(
+                1,
+                samp_rate,
+                2000,
+                1000,
+                firdes.WIN_HAMMING,
+                6.76))
+        self.limesdr_source_0 = limesdr.source('', 0, '', False)
 
 
-
-        labels = ['', '', '', '', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
-
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_freq_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_freq_sink_x_0_0.set_line_label(i, labels[i])
-            self.qtgui_freq_sink_x_0_0.set_line_width(i, widths[i])
-            self.qtgui_freq_sink_x_0_0.set_line_color(i, colors[i])
-            self.qtgui_freq_sink_x_0_0.set_line_alpha(i, alphas[i])
-
-        self._qtgui_freq_sink_x_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_win)
-        self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-            1024, #size
-            firdes.WIN_BLACKMAN_hARRIS, #wintype
-            0, #fc
-            samp_rate, #bw
-            "", #name
-            1
-        )
-        self.qtgui_freq_sink_x_0.set_update_time(0.10)
-        self.qtgui_freq_sink_x_0.set_y_axis(-140, 10)
-        self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, 0.0, 0, "")
-        self.qtgui_freq_sink_x_0.enable_autoscale(False)
-        self.qtgui_freq_sink_x_0.enable_grid(False)
-        self.qtgui_freq_sink_x_0.set_fft_average(1.0)
-        self.qtgui_freq_sink_x_0.enable_axis_labels(True)
-        self.qtgui_freq_sink_x_0.enable_control_panel(False)
+        self.limesdr_source_0.set_sample_rate(samp_rate)
 
 
+        self.limesdr_source_0.set_center_freq(freq, 0)
 
-        labels = ['', '', '', '', '',
-            '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-            "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0, 1.0, 1.0]
+        self.limesdr_source_0.set_bandwidth(1.5e6, 0)
 
-        for i in range(1):
-            if len(labels[i]) == 0:
-                self.qtgui_freq_sink_x_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_freq_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
-            self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
-            self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
 
-        self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win)
+        self.limesdr_source_0.set_digital_filter(samp_rate, 0)
+
+
+        self.limesdr_source_0.set_gain(30, 0)
+
+
+        self.limesdr_source_0.set_antenna(1, 0)
+
+
+        self.limesdr_source_0.calibrate(2.5e6, 0)
+        self.limesdr_sink_0 = limesdr.sink('', 0, '', '')
+
+
+        self.limesdr_sink_0.set_sample_rate(samp_rate)
+
+
+        self.limesdr_sink_0.set_center_freq(freq, 0)
+
+        self.limesdr_sink_0.set_bandwidth(5e6, 0)
+
+
+        self.limesdr_sink_0.set_digital_filter(samp_rate, 0)
+
+
+        self.limesdr_sink_0.set_gain(30, 0)
+
+
+        self.limesdr_sink_0.set_antenna(2, 0)
+
+
+        self.limesdr_sink_0.calibrate(2.5e6, 0)
         self.blocks_threshold_ff_0 = blocks.threshold_ff(0, 0, 0)
         self.blocks_sub_xx_0 = blocks.sub_ff(1)
         self.blocks_probe_signal_x_0_0 = blocks.probe_signal_f()
         self.blocks_probe_signal_x_0 = blocks.probe_signal_f()
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_gr_complex*1)
-        self.blocks_multiply_const_xx_0_1 = blocks.multiply_const_ff(180/3.14159, 1)
+        self.blocks_null_sink_1_0 = blocks.null_sink(gr.sizeof_float*1)
+        self.blocks_null_sink_1 = blocks.null_sink(gr.sizeof_float*1)
+        self.blocks_multiply_const_xx_0_0_0 = blocks.multiply_const_cc(1, 1)
         self.blocks_multiply_const_xx_0_0 = blocks.multiply_const_ff(-2*3.14159, 1)
         self.blocks_multiply_const_xx_0 = blocks.multiply_const_ff(180/3.14159, 1)
+        self.blocks_delay_0 = blocks.delay(gr.sizeof_gr_complex*1, caldelay)
         self.blocks_complex_to_magphase_0_0 = blocks.complex_to_magphase(1)
         self.blocks_complex_to_magphase_0 = blocks.complex_to_magphase(1)
         self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
-        self.band_pass_filter_0 = filter.fir_filter_ccf(
-            1,
-            firdes.band_pass(
-                1,
-                samp_rate,
-                0.19e6,
-                0.21e6,
-                0.01e6,
-                firdes.WIN_HAMMING,
-                6.76))
-        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 200000, 1, 0, 0)
+        self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1000, 1, 0, 0)
 
 
 
@@ -365,28 +294,28 @@ class phaseShift(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_complex_to_magphase_0, 0))
-        self.connect((self.analog_sig_source_x_0, 0), (self.uhd_usrp_sink_0, 0))
-        self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_magphase_0_0, 0))
-        self.connect((self.band_pass_filter_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.band_pass_filter_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
+        self.connect((self.analog_sig_source_x_0, 0), (self.limesdr_sink_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.blocks_multiply_const_xx_0, 0))
         self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.blocks_probe_signal_x_0_0, 0))
+        self.connect((self.blocks_complex_to_magphase_0, 0), (self.blocks_null_sink_1_0, 0))
         self.connect((self.blocks_complex_to_magphase_0, 1), (self.blocks_sub_xx_0, 0))
         self.connect((self.blocks_complex_to_magphase_0, 0), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.blocks_complex_to_magphase_0, 1), (self.qtgui_time_sink_x_1_0, 0))
+        self.connect((self.blocks_complex_to_magphase_0_0, 0), (self.blocks_null_sink_1, 0))
         self.connect((self.blocks_complex_to_magphase_0_0, 1), (self.blocks_sub_xx_0, 1))
         self.connect((self.blocks_complex_to_magphase_0_0, 0), (self.qtgui_time_sink_x_1, 1))
         self.connect((self.blocks_complex_to_magphase_0_0, 1), (self.qtgui_time_sink_x_1_0, 1))
+        self.connect((self.blocks_delay_0, 0), (self.low_pass_filter_1, 0))
+        self.connect((self.blocks_multiply_const_xx_0, 0), (self.blocks_probe_signal_x_0, 0))
         self.connect((self.blocks_multiply_const_xx_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.blocks_multiply_const_xx_0_0, 0), (self.blocks_add_xx_0, 1))
-        self.connect((self.blocks_multiply_const_xx_0_1, 0), (self.blocks_probe_signal_x_0, 0))
+        self.connect((self.blocks_multiply_const_xx_0_0_0, 0), (self.blocks_complex_to_magphase_0_0, 0))
         self.connect((self.blocks_sub_xx_0, 0), (self.blocks_add_xx_0, 0))
-        self.connect((self.blocks_sub_xx_0, 0), (self.blocks_multiply_const_xx_0_1, 0))
         self.connect((self.blocks_sub_xx_0, 0), (self.blocks_threshold_ff_0, 0))
         self.connect((self.blocks_threshold_ff_0, 0), (self.blocks_multiply_const_xx_0_0, 0))
-        self.connect((self.uhd_usrp_source_0, 1), (self.band_pass_filter_0, 0))
-        self.connect((self.uhd_usrp_source_0, 1), (self.blocks_complex_to_mag_squared_0, 0))
-        self.connect((self.uhd_usrp_source_0, 0), (self.blocks_null_sink_0, 0))
+        self.connect((self.limesdr_source_0, 0), (self.blocks_delay_0, 0))
+        self.connect((self.low_pass_filter_1, 0), (self.blocks_complex_to_mag_squared_0, 0))
+        self.connect((self.low_pass_filter_1, 0), (self.blocks_multiply_const_xx_0_0_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "phaseShift")
@@ -399,23 +328,29 @@ class phaseShift(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
-        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, 0.19e6, 0.21e6, 0.01e6, firdes.WIN_HAMMING, 6.76))
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
-        self.qtgui_freq_sink_x_0_0.set_frequency_range(0, self.samp_rate)
+        self.limesdr_sink_0.set_digital_filter(self.samp_rate, 0)
+        self.limesdr_sink_0.set_digital_filter(self.samp_rate, 1)
+        self.limesdr_source_0.set_digital_filter(self.samp_rate, 0)
+        self.limesdr_source_0.set_digital_filter(self.samp_rate, 1)
+        self.low_pass_filter_1.set_taps(firdes.low_pass(1, self.samp_rate, 2000, 1000, firdes.WIN_HAMMING, 6.76))
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate/10)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_1_0.set_samp_rate(self.samp_rate)
-        self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
-        self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
 
     def get_freq(self):
         return self.freq
 
     def set_freq(self, freq):
         self.freq = freq
-        self.uhd_usrp_sink_0.set_center_freq(self.freq, 0)
-        self.uhd_usrp_source_0.set_center_freq(self.freq, 0)
-        self.uhd_usrp_source_0.set_center_freq(self.freq, 1)
+        self.limesdr_sink_0.set_center_freq(self.freq, 0)
+        self.limesdr_source_0.set_center_freq(self.freq, 0)
+
+    def get_caldelay(self):
+        return self.caldelay
+
+    def set_caldelay(self, caldelay):
+        self.caldelay = caldelay
+        self.blocks_delay_0.set_dly(self.caldelay)
 
 
 
