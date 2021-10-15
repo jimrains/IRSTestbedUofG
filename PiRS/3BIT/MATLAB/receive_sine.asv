@@ -1,0 +1,32 @@
+rx = comm.SDRuReceiver(...
+                    'Platform','X310', ...
+                    'OutputDataType','double', ...
+                    'MasterClockRate',200e6, ...
+                    'DecimationFactor',512, ...
+                    'Gain',35, ...
+                    'CenterFrequency',3.9e9, ...
+                    'SamplesPerFrame',4000)
+
+
+% 
+% 
+% rx = comm.SDRuReceiver
+% rx.Platform =  'X310'
+% rx.CenterFrequency = 3.9e9
+% rx.DecimationFactor = 512/4
+% rx.Gain = 20
+% output = rx()
+
+while 1
+    data = rx();
+    plot(real(data))
+    axis([0 16000 -10e-4 10e-4]) 
+end
+
+while time < 10 
+ [data,len] = step(rx); 
+ %timeScope([real(NormalizedData),imag(NormalizedData)]); 
+    spectrumScope(data); 
+ end 
+    time = time + frameduration; 
+end
