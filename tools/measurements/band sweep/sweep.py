@@ -106,7 +106,7 @@ class sweep(gr.top_block, Qt.QWidget):
             ),
         )
         self.uhd_usrp_source_0_0.set_center_freq(freq, 0)
-        self.uhd_usrp_source_0_0.set_gain(15, 0)
+        self.uhd_usrp_source_0_0.set_gain(30, 0)
         self.uhd_usrp_source_0_0.set_antenna('RX2', 0)
         self.uhd_usrp_source_0_0.set_samp_rate(samp_rate)
         # No synchronization enforced.
@@ -210,20 +210,20 @@ def main(top_block_cls=sweep, options=None):
     ### Sets frequency on Tx side, measures received power, and so on.
     ### Saves points in text file with unique name outlining frequency, magnitude, timestamp, date
     ###
-    
+
     # create filename from time stamp, date, and GPS
     # Set tx Frequency
     # Set rx Frequency
     # wait a sec
     # take averaged power measurements
     # write to file
-    
+
     # args: freq_s, freq_f, step (MHz)
-    
-    
+
+
     def format_sweep_data(opt_freq, cur_freq, power):
         return str(opt_freq) + " " + str(cur_freq) + " " + str(power)
-    
+
     def generate_filename(frequency, function):
         DT = datetime.datetime.now()
         fn1 = str(DT.year) + str(DT.month) + str(DT.day)
@@ -231,11 +231,11 @@ def main(top_block_cls=sweep, options=None):
         fn3 = "_" + function + "_"
         fn4 = str(frequency) + ".dat"
         return fn1+fn2+fn3+fn4
-    
+
     def mainLoop():
         print(" :: Frequency sweep ")
         rpcs = client.Server('http://192.168.4.3:8080')
-    
+
         if len(sys.argv) != 5:
             print(" :: Frequency sweep usage: sweep.py start_freq end_freq step_size opt_freq")
             sys.exit()
@@ -252,17 +252,18 @@ def main(top_block_cls=sweep, options=None):
             print(" :: Directory exists - skipping ")
         SF = open(dir_name + generate_filename(opt_freq, "SWEEP"), "w")
         #######
-    
-    
+
+
         print(" :: IRS optimised at: ", opt_freq, " MHz ")
         print(" :: Range: ", start_freq, " MHz - ", end_freq, " MHz | Step size: ", step_size, " MHz")
         print(" :: Starting sweep: ")
-    
+
         avg_length = 500
-    
+
         for frequency in range(start_freq, end_freq + step_size, step_size):
             print(" :: Frequency: ", frequency, " MHz ")
             rpcs.set_txfreq(frequency)
+            rpcs.set_txgain(31.5)
             tb.set_freq(frequency*1000000)
             time.sleep(1)
             print(" :: Set: ", rpcs.get_txfreq())
@@ -273,13 +274,13 @@ def main(top_block_cls=sweep, options=None):
             PWR = PWR/avg_length
             SF.write(format_sweep_data(opt_freq, frequency, 10*np.log10(PWR)) + "\n")
             print(" :: Relative power: ", 10*np.log10(PWR), " dB")
-    
+
         print(" :: DONE ")
         os.system('play -nq -t alsa synth {} sine {}'.format(1, 400))
         SF.close()
         tb.stop()
         sys.exit()
-    
+
     uiThread = Thread(target=mainLoop, args=())
     uiThread.start()
     ############################################

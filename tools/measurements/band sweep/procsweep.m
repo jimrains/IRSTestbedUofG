@@ -16,8 +16,6 @@ gip = load(strcat(sweep_dir,'2021106_202428_SWEEP_3500.dat'))
 gip = load(strcat(sweep_dir,'2021106_22143_SWEEP_3500.dat'))
 gip = load(strcat(sweep_dir,'2021106_222641_SWEEP_4000.dat'))
 
-
-
 relmags = gip(:,3)
 freq = gip(:,2)
 
@@ -47,10 +45,9 @@ ylabel("Received power improvement (dB)")
 xlabel("Frequency (GHz)")
 grid on
 
-
-figure(2)
-plot(freq, nors(:,3) - nors(ref(:,3)))
-grid on
-title("Normalised received power (no IRS)")
-ylabel("Baseband received power (dBFS)")
-xlabel("Frequency (GHz)")
+% figure(2)
+% plot(freq, nors(:,3) - nors(ref(:,3)))
+% grid on
+% title("Normalised received power (no IRS)")
+% ylabel("Baseband received power (dBFS)")
+% xlabel("Frequency (GHz)")
