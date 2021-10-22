@@ -30,7 +30,7 @@ end
 
 gammas = gamma;
 
-lambda = 0.3/3.9 % 3.9 GHz
+%lambda = 0.3/3.9 % 3.9 GHz
 
 N = 48
 M = 48
@@ -71,21 +71,29 @@ for a = 1:fstep:length(freqs)
     frind = a
     
     lambda = 0.3e9/freqs(a);
-    
+
     figure(1)
-    %freqs = f;
-    h4 = subplot(2,3,1)
-    cla(h4)
+    h4 = subplot(2,3,1);
+    cla(h4);
     phasecurves = 180/pi*unwrap(curves.');
     plot(freqs/1e9, phasecurves(:,1), 'LineWidth', 2, 'Color', g1)
     hold on
     plot(freqs/1e9, phasecurves(:,2), 'LineWidth', 2, 'Color', g2)
     plot(freqs/1e9, phasecurves(:,3), 'LineWidth', 2, 'Color', g3)
     plot(freqs/1e9, phasecurves(:,4), 'LineWidth', 2, 'Color', g4)
-    %phasecurves = 180/pi*unwrap(curves.');
-    %plot(freqs/1e9, phasecurves(:,2) - phasecurves(:,1), 'b-.', 'LineWidth', 2)
+    
     axis([1 5 -180 190])
-    xline(freqs(a)/1e9, '-.', 'LineWidth', 2)
+    xline(freqs(a)/1e9, 'bl-.', 'LineWidth', 2)
+    
+    phi1 = phasecurves(frind,1);
+    phi2 = phasecurves(frind,2);
+    phi3 = phasecurves(frind,3);
+    phi4 = phasecurves(frind,4);
+    text(4, 160,strcat("{\phi}_{00}: ", num2str(round(phi1))),'HorizontalAlignment','left', 'FontSize', 13)
+    text(4, 130,strcat("{\phi}_{01}: ", num2str(round(phi2))),'HorizontalAlignment','left', 'FontSize', 13)
+    text(4, 100,strcat("{\phi}_{10}: ", num2str(round(phi3))),'HorizontalAlignment','left', 'FontSize', 13)
+    text(4, 70,strcat("{\phi}_{11}: ", num2str(round(phi4))),'HorizontalAlignment','left', 'FontSize', 13)
+    
     pbaspect([108 72 1])
     title("Unit cell reflection phase versus frequency")
     xlabel("Frequency (GHz)", 'FontSize', 14)
@@ -94,24 +102,31 @@ for a = 1:fstep:length(freqs)
     
     h1 = subplot(2,3,4)
     cla(h1)
-    magcurves = mags.';
+    magcurves = mags.';        
+       
     plot(freqs/1e9, magcurves(:,1), 'LineWidth', 2, 'Color', g1)   
     hold on
     plot(freqs/1e9, magcurves(:,2), 'LineWidth', 2, 'Color', g2)
     plot(freqs/1e9, magcurves(:,3), 'LineWidth', 2, 'Color', g3)   
     plot(freqs/1e9, magcurves(:,4), 'LineWidth', 2, 'Color', g4)
     
-    xline(freqs(a)/1e9, '-.', 'LineWidth', 2)
+    xline(freqs(a)/1e9, 'bl-.', 'LineWidth', 2)
+    
+    mag1 = magcurves(frind,1);
+    mag2 = magcurves(frind,2);
+    mag3 = magcurves(frind,3);
+    mag4 = magcurves(frind,4);
+    text(4, 0.7,strcat("{|\Gamma|}_{00}: ", num2str( round((mag1),2) ) ),'HorizontalAlignment','left', 'FontSize', 13)
+    text(4, 0.65,strcat("{|\Gamma|}_{01}: ", num2str(round((mag2),2) ) ),'HorizontalAlignment','left', 'FontSize', 13)
+    text(4, 0.6,strcat("{|\Gamma|}_{10}: ", num2str(round((mag3),2)) ),'HorizontalAlignment','left', 'FontSize', 13)
+    text(4, 0.55,strcat("{|\Gamma|}_{11}: ", num2str(round((mag4),2)) ),'HorizontalAlignment','left', 'FontSize', 13)
+    
     axis([1 5 0.5 1])
     pbaspect([108 72 1])
     title("Unit cell reflection magnitude versus frequency")
     xlabel("Frequency (GHz)", 'FontSize', 14)
     ylabel("Magnitude (linear)", 'FontSize', 14)
     
-    gam = ones(N,M);
-    %Pr = zeros(2^NBIT,1)
-    %PrdB = 0
-    %txcoords = [-1.3 1.2 2.83];
     gam = ones(N,M);
     sig = 0;
     sig_ref = 0;
@@ -131,7 +146,7 @@ for a = 1:fstep:length(freqs)
     for p = 1:M
         % Iterate over rows
         for q = 1:N/COLL
-            for k = 1:(2^NBIT)
+            for k = 1:(2^NBIT)    
                 %% 48 relates to index of 3.9 GHz
                 %gam(((q-1)*COLL + 1):q*COLL, p) = gammas.gamma(k,frind);
                 gam(((q-1)*COLL + 1):q*COLL, p) = gammas(k,frind);
@@ -176,9 +191,9 @@ for a = 1:fstep:length(freqs)
 
     figure(1)
     %clf
-    h2 = subplot(2,3,2)
+    h2 = subplot(2,3,2);
     %imagesc(angle(gam)*180/pi)
-    imagesc(statesmates)
+    imagesc(statesmates);
     C = [g1; g2; g3; g4];
     colormap(h2, C)
     colorbar('Ticks',[1,2,3,4],...
@@ -271,9 +286,9 @@ for a = 1:fstep:length(freqs)
     [val, ldind] = min(abs(xs - displine));
     PrdB(ldind,1) = PrdB(ldind,2);
     PrdB_ref(ldind,1) = PrdB_ref(ldind,2);
-    plot(zs, smooth(PrdB(ldind,:),10) - smooth(PrdB_ref(ldind,:), 10) )
-    title({'Received power improvement',' along x = -30 m versus metal plate'})
-    axis([zmin zmax -15 50])
+    plot(zs(2:end), smooth(PrdB(ldind,2:end),5) - smooth(PrdB_ref(ldind,2:end), 5) )
+    title({'Average received power improvement',' along x = -30 m versus metal plate'})
+    axis([1 zmax -15 40])
     pbaspect([108 72 1])
     grid on
     xlabel('Z displacement (m)', 'FontSize', 14)
